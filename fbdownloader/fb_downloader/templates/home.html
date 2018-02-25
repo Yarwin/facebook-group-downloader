@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="post">
+{% for group in object_list %}
+    <div>
+        <a href={% url 'view-group' group.group_id %}>
+        <h3>{{ group.name }}</h3>
+        </a>
+    </div>
+    {% empty %}
+    <h4>No groups scrapped yet</h4>
+{% endfor %}
+
+<div>
+<a href="
+https://graph.facebook.com/oauth/authorize?type=user_agent&client_id=566876266996535&redirect_uri=http://localhost:8000/get-group/&scope=user_managed_groups">
+    Authorise and scrap the group!
+</a>
+    </div>
+</div>
+<style>
+
+</style>
+{% endblock %}

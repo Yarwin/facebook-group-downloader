@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head %}
+
+
+<script type="text/javascript" src="{% static 'js/get-group.js' %}"> </script>
+
+{% endblock %}
+
+{% block content %}
+  <div class="post">
+    <div id="result">Auth in process, please wait...</div>
+    <div id="group-header"></div>
+    <div class="groups" id="groups"></div>
+  </div>
+
+<style>
+.post {
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+.groups {
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: repeat(1, 400px 1fr);
+}
+
+
+#result, #group-header{
+  text-align: center;
+}
+</style>
+{% endblock %}
