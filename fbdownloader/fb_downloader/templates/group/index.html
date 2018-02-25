@@ -7,54 +7,14 @@
 {% block content %}
 <div class="post-container">
     {% for post in object_list %}
-    <div class="post">
-        <div class="top">
-            <div class="author">{{ post.author.name }}</div>
-            <div class="date">{{ post.created_time }}</div>
-        </div>
-        <div class="message">
-            {{ post.message | linebreaksbr }}
-
-        {% for image in post.get_images %}
-            <img src="{{ image.photo.url }}" />
-        {% endfor %} 
-
-        </div>
+    {% include "./posts.html" with post=post %}
+    {% empty %}
+    <h4>No posts</h4>
+    {% endfor %}
 
 
-        {% for comment in post.children.all %}
-        <div class="child-post post-border-left">
-            <div class="top">
-                <div class="author">{{ comment.author.name }}</div>
-                <div class="date">{{ comment.created_time }}</div>
-            </div>
-            <div class="message">
-                {{ comment.message | linebreaksbr }}
-            </div>
-
-
-
-
-            <div class="post-border-left">
-                {% for child_comment in comment.children.all %}
-                <div class="child-post">
-                    <div class="top">
-                        <div class="author">{{ child_comment.author.name }}</div>
-                        <div class="date">{{ child_comment.created_time }}</div>
-                    </div>
-                    <div class="message">
-                    {{ child_comment.message | linebreaksbr }}</div>
-                </div>
-                {% endfor %}
-            </div></div>
-            {% endfor %}
-        </div>
-        {% empty %}
-        <h4>No posts</h4>
-        {% endfor %}
-
-        {% if is_paginated %}
-        <div class="pagination">
+    {% if is_paginated %}
+    <div class="pagination">
             <span class="page-links">
                 {% if page_obj.has_previous %}
                 <a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">previous</a>
@@ -66,10 +26,10 @@
                 <a href="{{ request.path }}?page={{ page_obj.next_page_number }}">next</a>
                 {% endif %}
             </span>
-        </div>
-        {% endif %}
     </div>
-    <style>
+    {% endif %}
+</div>
+<style>
 
     .message {
         margin-left: 15px;
