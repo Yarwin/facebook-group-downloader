@@ -30,11 +30,8 @@ body {
   align-items: center;
 }
 
-.post {
-  margin-left: 50px;
-  margin-right: 50px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 25px;
+.posts {
+  margin-bottom: 50px;
   padding: 15px;
   -webkit-box-shadow: 0px 0px 10px 5px rgba(0,0,0,0.2);
   -moz-box-shadow: 0px 0px 10px 5px rgba(0,0,0,0.2);
@@ -42,15 +39,25 @@ body {
 }
 
 .child-post {
-  margin: 15px;
-  padding: 15px;
+  margin-left: 5px;
+  margin-bottom: 25px;
+  padding-left: 10px;
+  padding-top: 10px;
+  margin-bottom: 15px;
 }
 
 .post-border-left {
-  border-left: 1px solid var(--border);
+  margin-top: 15px;
+  padding: 5px;
+  border-left: 2px solid var(--border);
+  border-radius: 25px;
+  margin-right: 10px;
   margin-left: 50px;
 }
 
+.date {
+  font-size: 0.9rem;
+}
 
 .author {
   font-size: 1.2rem;

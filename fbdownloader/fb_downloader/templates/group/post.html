@@ -1,0 +1,10 @@
+<div class="author">{{ post.author.name }}</div>
+    <div class="date">{{ post.created_time }}</div>
+    <div class="message">
+        {{ post.message | linebreaksbr }}
+    </div>
+    {% for image in post.get_images %}
+    <div class="post-image">
+        <img src="{{ image.photo.url }}" />
+    </div>
+    {% endfor %}

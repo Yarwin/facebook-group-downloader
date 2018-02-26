@@ -11,7 +11,7 @@
     {% empty %}
     <h4>No posts</h4>
     {% endfor %}
-
+</div>
 
     {% if is_paginated %}
     <div class="pagination">
@@ -28,21 +28,10 @@
             </span>
     </div>
     {% endif %}
-</div>
 <style>
-
-    .message {
-        margin-left: 15px;
-    }
 
     .post-container {
         width: 75vw;
-    }
-
-    .top {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 5px;
     }
 </style>
 {% endblock %}

@@ -1,42 +1,22 @@
+<div class="posts">
+    {% include "./post.html" with post=post %}
+    {% for comment in post.children.all %}
 
-    <div class="post">
-        <div class="top">
-            <div class="author">{{ post.author.name }}</div>
-            <div class="date">{{ post.created_time }}</div>
-        </div>
-        <div class="message">
-            {{ post.message | linebreaksbr }}
+    <div class="child-post">
+        {% include "./post.html" with post=comment %}
 
-        {% for image in post.get_images %}
-            <img src="{{ image.photo.url }}" />
-        {% endfor %}
+        {% if comment.children.all %}
+        <div class="post-border-left">
 
-        </div>
-
-
-        {% for comment in post.children.all %}
-
-        <div class="child-post post-border-left">
-            <div class="top">
-                <div class="author">{{ comment.author.name }}</div>
-                <div class="date">{{ comment.created_time }}</div>
+            {% for child_comment in comment.children.all %}
+            <div class="child-post">
+                {% include "./post.html" with post=child_comment %}
+                
             </div>
-            <div class="message">
-                {{ comment.message | linebreaksbr }}
-            </div>
-
-
-            <div class="post-border-left">
-                {% for child_comment in comment.children.all %}
-                <div class="child-post">
-                    <div class="top">
-                        <div class="author">{{ child_comment.author.name }}</div>
-                        <div class="date">{{ child_comment.created_time }}</div>
-                    </div>
-                    <div class="message">
-                    {{ child_comment.message | linebreaksbr }}</div>
-                </div>
-                {% endfor %}
-            </div></div>
             {% endfor %}
         </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
