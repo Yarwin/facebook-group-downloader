@@ -1,22 +1,29 @@
 <div class="posts">
-    {% include "./post.html" with post=post %}
-    {% for comment in post.children.all %}
-
-    <div class="child-post">
-        {% include "./post.html" with post=comment %}
-
-        {% if comment.children.all %}
-        <div class="post-border-left">
-
-            {% for child_comment in comment.children.all %}
-            <div class="child-post">
-                {% include "./post.html" with post=child_comment %}
-                
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
+    <div class="head-post">
+        {% include "./post.html" with post=post %}
     </div>
-    {% endfor %}
+
+    <div class="comments" id="{{ post.post_id }}">
+
+        {% for comment in post.children.all %}
+        <div class="child-post">
+            {% include "./post.html" with post=comment %}
+
+            {% if comment.children.all %}
+            <div class="comments" id="{{ comment.post_id }}">
+            <div class="post-border-left">
+
+                {% for child_comment in comment.children.all %}
+                <div class="child-post">
+                    {% include "./post.html" with post=child_comment %}
+
+                </div>
+                {% endfor %}
+            </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
 </div>
 
