@@ -38,6 +38,7 @@ def create_post_and_author(parent_id, author_data, group, attachments: list, **k
     parent = FbPost.objects.filter(post_id=parent_id).first()
 
     if parent:
+        # todo - update last active date via @property
         last_active = getattr(parent, 'last_active')
         if not last_active:
             pass

@@ -17,9 +17,12 @@ def manage_post(post: dict, group: FbGroup, parent_id: str=None, skip: bool=True
         'name': author_data.get('name') if author_data else 'disabled account'
     }
     attachments = post.get('attachments', {})
+
+    if not attachments:
+        attachments = post.get('attachment', {})
+
     if attachments:
         attachments =  attachments.get('data', [])
-
 
     created_time = datetime.strptime(
         post.get('created_time').split('+')[0], '%Y-%m-%dT%H:%M:%S')
