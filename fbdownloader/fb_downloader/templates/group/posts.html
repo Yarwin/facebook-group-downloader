@@ -5,15 +5,15 @@
 
     <div class="comments" id="{{ post.post_id }}">
 
-        {% for comment in post.children.all %}
+        {% for comment in post.get_child_posts %}
         <div class="child-post">
             {% include "./post.html" with post=comment %}
 
-            {% if comment.children.all %}
+            {% if comment.get_child_posts %}
             <div class="comments" id="{{ comment.post_id }}">
             <div class="post-border-left">
 
-                {% for child_comment in comment.children.all %}
+                {% for child_comment in comment.get_child_posts %}
                 <div class="child-post">
                     {% include "./post.html" with post=child_comment %}
 

@@ -37,4 +37,12 @@ class GroupListView(ListView):
     paginate_by = 15
 
     def get_queryset(self):
-        return FbPost.objects.filter(group__group_id=self.kwargs['group'], parent=None)
+        result = FbPost.objects.filter(group__group_id=self.kwargs['group'], parent=None)
+        post = self.request.GET.get('m', '')
+        author = self.request.GET.get('a', '')
+        if author:
+            result = result.filter(author__user_id=author)
+        if post:
+            result = result.filter(message__icontains=post)
+
+        return result

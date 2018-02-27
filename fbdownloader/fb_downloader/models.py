@@ -19,6 +19,7 @@ class FbUser(models.Model):
 
 class FbPost(models.Model):
     # todo - handle group notifications (like changes of descriptions, appointment of moderators, etc.)
+    # todo - make last_active property
     post_id = models.CharField(max_length=255, unique=True)
     group = models.ForeignKey(FbGroup, on_delete=models.CASCADE)
     author = models.ForeignKey(FbUser, to_field='user_id',  on_delete=models.CASCADE)
@@ -30,6 +31,9 @@ class FbPost(models.Model):
 
     def get_images(self):
         return FbMedia.objects.filter(post=self)
+
+    def get_child_posts(self):
+        return FbPost.objects.filter(parent=self).order_by('-created_time')[::-1]
 
 
 class FbMedia(models.Model):
