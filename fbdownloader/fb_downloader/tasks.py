@@ -7,6 +7,7 @@ from celery import shared_task
 from datetime import datetime
 import pytz
 import requests
+from django.db import IntegrityError
 
 from .models import FbUser, FbPost, FbMedia, FbGroup
 
@@ -19,7 +20,6 @@ logger = logging.getLogger(__name__)
 
 @shared_task
 def save_image(url: str, post: FbPost, description: str):
-
     if FbMedia.objects.filter(fb_url=url).first():
         return
 
@@ -52,22 +52,26 @@ def create_post_and_author(parent_id, author_data, group, attachments: list, **k
             pass
         elif created_time > last_active:
             parent.update(last_active=created_time)
+    try:
+        post, created = FbPost.objects.get_or_create(**kwargs, group=group, author=author, parent=parent)
 
-    post, created = FbPost.objects.get_or_create(**kwargs, group=group, author=author, parent=parent)
+        if not created:
+            post.save()
 
-    if not created:
-        post.save()
+    except IntegrityError:
+        post = FbPost.objects.filter(post_id=locals().get('kwargs').get('post_id')).first()
+        pass
 
     for attachment in attachments:
+        # todo handle other type of attachments - video, files, etc.
         if type(attachment) is not dict:
+            # dirty hack
             return
-        #todo handle other type of attachments - video, files, etc.
-
         url = attachment.get('media', {}).get('image', '')
         if not url:
             continue
 
-        save_image(description=attachment.get('description'),
+        save_image(description=attachment.get('description', ''),
                    url=url.get('src'),
                    post=post,
                    )
@@ -81,9 +85,11 @@ def manage_post(post: dict, group: FbGroup, parent_id: str=None, skip: bool=True
         'name': author_data.get('name') if author_data else 'disabled account'
     }
 
-    attachments = post.get('attachment', [])
-
-    if not attachments:
+    attachments = post.get('attachment', '')
+    if attachments:
+        attachments = [attachments]
+    
+    elif not attachments:
         attachments = post.get('attachments', {})
         if attachments:
             attachments =  attachments.get('data', [])
