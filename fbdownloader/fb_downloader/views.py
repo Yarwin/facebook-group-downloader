@@ -4,8 +4,8 @@ from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView
 
+from .tasks import fetch_group_posts
 from .models import FbPost, FbGroup
-from .downloader_script.fetch_group import fetch_group_post
 
 
 @csrf_exempt
@@ -14,7 +14,7 @@ def get_group(request):
         token = request.POST.get('user_token')
         group_id = request.POST.get('group_id')
         group_name = request.POST.get('group_name')
-        p = Process(target=fetch_group_post, args=(group_id, group_name, token))
+        p = Process(target=fetch_group_posts, args=(group_id, group_name, token))
         p.start()
         return redirect('/')
 
