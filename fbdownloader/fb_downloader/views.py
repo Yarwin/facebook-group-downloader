@@ -34,7 +34,7 @@ class GroupListView(ListView):
     model = FbPost
     template_name = "group/index.html"
     ordering = ['-last_active']
-    paginate_by = 15
+    paginate_by = 20
 
     def get_queryset(self):
         result = FbPost.objects.filter(group__group_id=self.kwargs['group'], parent=None)

@@ -27,46 +27,73 @@ def save_image(url: str, post: FbPost, description: str):
     img_filename = url.split('/')[-1].split('?')[0]
 
     with NamedTemporaryFile() as temp:
-
         r = requests.get(url)
         temp.write(r.content)
         temp.flush()
-
         image.photo.save(img_filename, File(temp), save=True)
 
 
 @shared_task
-def create_post_and_author(parent_id, author_data, group, attachments: list, **kwargs):
+def create_post(parent: FbPost, author: FbUser, group: FbGroup, post_id: str, created_time, **kwargs):
+    post = FbPost.objects.filter(post_id=post_id).first()
+
+    if not post:
+        # create post if it doesn't exist and return
+        new_post = FbPost(created_time=created_time,
+                              last_active=created_time,
+                              group=group,
+                              author=author,
+                              parent=parent,
+                              **kwargs)
+        new_post.save()
+        return new_post
+
+    old_message = getattr(post, 'message')
+    new_message = locals().get('kwargs').get('message')
+    if old_message != new_message:
+        post.update(message=new_message)
+
+    return post
+
+
+@shared_task
+def get_and_update_parent_post(parent_id: str, created_time):
+    if not parent_id:
+        # don't even bother with searching if there is not parent_id for this post.
+        return None
+
+    parent = FbPost.objects.filter(post_id=parent_id).first()
+
+    if parent:
+        # todo - update last_active via @property
+        last_active = getattr(parent, 'last_active')
+        if not last_active or created_time > last_active:
+            parent.update(last_active=created_time)
+
+    return parent
+
+
+@shared_task
+def create_post_and_author(parent_id, author_data, group, attachments: list, post_id: str, created_time, **kwargs):
     # todo - scrap reactions too
+
+    # get or create author
     author, created = FbUser.objects.get_or_create(**author_data)
     if created:
         author.save()
 
-    created_time = locals().get('kwargs').get('created_time')
-    parent = FbPost.objects.filter(post_id=parent_id).first()
+    # get parent and update last_active date
+    parent = get_and_update_parent_post(parent_id)
 
-    if parent:
-        # todo - update last active date via @property
-        last_active = getattr(parent, 'last_active')
-        if not last_active:
-            pass
-        elif created_time > last_active:
-            parent.update(last_active=created_time)
-    try:
-        post, created = FbPost.objects.get_or_create(**kwargs, group=group, author=author, parent=parent)
-
-        if not created:
-            post.save()
-
-    except IntegrityError:
-        post = FbPost.objects.filter(post_id=locals().get('kwargs').get('post_id')).first()
-        pass
+    # create or update post
+    post = create_post(post_id=post_id, parent=parent, group=group, author=author, **kwargs)
 
     for attachment in attachments:
         # todo handle other type of attachments - video, files, etc.
         if type(attachment) is not dict:
             # dirty hack
             return
+
         url = attachment.get('media', {}).get('image', '')
         if not url:
             continue
@@ -78,7 +105,7 @@ def create_post_and_author(parent_id, author_data, group, attachments: list, **k
 
 
 @shared_task
-def manage_post(post: dict, group: FbGroup, parent_id: str=None, skip: bool=True):
+def manage_post(post: dict, group: FbGroup, parent_id: str=None):
     author_data = post.get('from')
     author_data = {
         'user_id': author_data.get('id') if author_data else '12345',
@@ -88,7 +115,7 @@ def manage_post(post: dict, group: FbGroup, parent_id: str=None, skip: bool=True
     attachments = post.get('attachment', '')
     if attachments:
         attachments = [attachments]
-    
+
     elif not attachments:
         attachments = post.get('attachments', {})
         if attachments:
@@ -118,7 +145,7 @@ def manage_post(post: dict, group: FbGroup, parent_id: str=None, skip: bool=True
 
 
 @shared_task
-def fetch_group_posts(group_id: str, group_name: str, token: str, fields: str=None):
+def fetch_group_posts(group_id: str, group_name: str, token: str, fields: str=None, pagination: bool=True,):
     group, created = FbGroup.objects.get_or_create(
         group_id=group_id,
         name=group_name
@@ -131,7 +158,7 @@ def fetch_group_posts(group_id: str, group_name: str, token: str, fields: str=No
                  'comments{message,from,attachment,reactions,created_time,' \
                  'comments{from,message,attachment,reactions,created_time}}'
     graph = facepy.GraphAPI(token)
-    fetched_data = graph.get(group_id + "/feed", fields=fields, page=True, retry=3)
+    fetched_data = graph.get(group_id + "/feed", fields=fields, page=pagination, retry=3)
     for data in fetched_data:
         for post in data.get('data'):
             logger.info('Scrapping post {0} from {1}'.format(post.get('id'), post.get('created_time')))
