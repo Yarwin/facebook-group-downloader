@@ -9,7 +9,7 @@ urlpatterns = [
     path('', views.HomeListView.as_view(),
          name='index'),
     path('get-group/', views.get_group, name='get-group'),
-    path('group/<str:group>/', views.GroupListView.as_view(), name='view-group'),
+    path('group/<str:group>/', views.GroupListView.as_view(), name='group-list-view'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

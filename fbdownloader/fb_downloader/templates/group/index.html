@@ -5,6 +5,9 @@
 {% endblock %}
 
 {% block content %}
+
+{% include './search.html' %}
+
 <div class="post-container">
     {% for post in object_list %}
     {% include "./posts.html" with post=post %}

@@ -1,0 +1,35 @@
+<div class="posts search-box">
+	<form id="searchform" action="{{ request.path }}" method="get" accept-charset="utf-8">
+		<div class="search-inputs">
+			<div class="search-input">
+		Phrase: <input class="searchfield" id="searchbox" name="m" type="text" placeholder="Search by phrases">
+		</div>
+		<div class="search-input">
+		Author: <input class="searchfield" id="searchbox" name="a" type="text" placeholder="Search by author name">
+		</div>
+		</div>
+		<div class="search-button">
+		<button class="searchbutton" type="submit">
+			Search
+		</button>
+		</div>
+	</form>
+</div>
+
+
+<style>
+	.search-box {
+		display: grid;
+		grid-template-columns: 1fr;
+	}
+
+	.search-inputs {
+		display: flex;
+		justify-content: space-around;
+	}
+	.search-button {
+		display: flex;
+		justify-content: center;
+	}
+
+</style>

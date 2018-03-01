@@ -39,19 +39,21 @@ def create_post(parent: FbPost, author: FbUser, group: FbGroup, post_id: str, cr
 
     if not post:
         # create post if it doesn't exist and return
-        new_post = FbPost(created_time=created_time,
-                              last_active=created_time,
-                              group=group,
-                              author=author,
-                              parent=parent,
-                              **kwargs)
-        new_post.save()
-        return new_post
+        post = FbPost(created_time=created_time,
+                      last_active=created_time,
+                      group=group,
+                      author=author,
+                      parent=parent,
+                      post_id=post_id,
+                      **kwargs)
+        post.save()
+        return post
 
     old_message = getattr(post, 'message')
     new_message = locals().get('kwargs').get('message')
     if old_message != new_message:
-        post.update(message=new_message)
+        post.message = new_message
+        post.save(update_fields=['message'])
 
     return post
 
@@ -68,26 +70,28 @@ def get_and_update_parent_post(parent_id: str, created_time):
         # todo - update last_active via @property
         last_active = getattr(parent, 'last_active')
         if not last_active or created_time > last_active:
-            parent.update(last_active=created_time)
+            parent.last_active = created_time
+            parent.save(update_fields=['last_active'])
 
     return parent
 
 
 @shared_task
-def create_post_and_author(parent_id, author_data, group, attachments: list, post_id: str, created_time, **kwargs):
-    # todo - scrap reactions too
-
-    # get or create author
+def create_post_and_author(parent_id: str, author_data: dict, group: FbGroup, attachments: list, post_id: str, created_time, **kwargs):
+    # get or create author.
     author, created = FbUser.objects.get_or_create(**author_data)
     if created:
         author.save()
 
     # get parent and update last_active date
-    parent = get_and_update_parent_post(parent_id)
+    parent = get_and_update_parent_post(parent_id, created_time)
 
     # create or update post
-    post = create_post(post_id=post_id, parent=parent, group=group, author=author, **kwargs)
+    post = create_post(post_id=post_id, parent=parent, group=group, author=author, created_time=created_time, **kwargs)
 
+    # todo - scrap reactions too
+
+    # done - scrap attachments
     for attachment in attachments:
         # todo handle other type of attachments - video, files, etc.
         if type(attachment) is not dict:

@@ -41,7 +41,7 @@ class GroupListView(ListView):
         post = self.request.GET.get('m', '')
         author = self.request.GET.get('a', '')
         if author:
-            result = result.filter(author__user_id=author)
+            result = result.filter(author__name=author)
         if post:
             result = result.filter(message__icontains=post)
 

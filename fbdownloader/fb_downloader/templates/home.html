@@ -4,7 +4,7 @@
 <div class="post">
 {% for group in object_list %}
     <div>
-        <a href={% url 'view-group' group.group_id %}>
+        <a href={% url 'group-list-view' group.group_id %}>
         <h3>{{ group.name }}</h3>
         </a>
     </div>
