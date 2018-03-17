@@ -30,7 +30,8 @@ class HomeListView(ListView):
 
 
 class GroupListView(ListView):
-    # todo - add another view filtering, add detailed post view
+    # todo - add detailed post view
+    # todo - make stats
     model = FbPost
     template_name = "group/index.html"
     ordering = ['-last_active']
@@ -41,7 +42,7 @@ class GroupListView(ListView):
         post = self.request.GET.get('m', '')
         author = self.request.GET.get('a', '')
         if author:
-            result = result.filter(author__name=author)
+            result = result.filter(author__name__contains=author)
         if post:
             result = result.filter(message__icontains=post)
 

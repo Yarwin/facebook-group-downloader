@@ -25,6 +25,8 @@ SECRET_KEY = 'b*-^uf34z+5ws#*_h+46r+-v4dinh2!dp-ra&ct6m%bdsx1f(b'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# disclamer - since we are running it **only** on localhost
+# and we want Django to serve static files we leave Debug as True.
 
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
 
